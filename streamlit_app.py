@@ -18,251 +18,216 @@ load_dotenv()
 
 # ── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="NexHire AI | Agentic Screener",
-    page_icon="🧠",
+    page_title="NexHire AI",
+    page_icon="⚡",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed" # collapsed to optimize dual-col space
 )
 
-# ── Custom CSS ────────────────────────────────────────────────────────────────
+# ── Strict Recruiter Dashboard CSS ────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Geist:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;700&family=Geist:wght@400;500;600;700&display=swap');
 
 :root {
-    --primary: #ffffff;
-    --bg-dark: #000000;
-    --card-bg: #09090b;
-    --card-border: #27272a;
-    --text-main: #fafafa;
-    --text-muted: #a1a1aa;
-    --hire-color: #10b981;
+    --zinc-950: #09090b;
+    --zinc-900: #18181b;
+    --zinc-800: #27272a;
+    --zinc-400: #a1a1aa;
+    --zinc-100: #f4f4f5;
+    --emerald-500: #10b981;
+    --amber-500: #f59e0b;
+    --rose-500: #f43f5e;
 }
 
 .stApp {
-    background-color: var(--bg-dark);
-    color: var(--text-main);
-    font-family: 'Geist', sans-serif;
+    background-color: var(--zinc-950);
+    color: var(--zinc-100);
+    font-family: 'Geist', -apple-system, sans-serif;
     letter-spacing: -0.01em;
 }
 
-/* Grid background effect mimicking pure pro layout */
-.stApp::before {
-    content: "";
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNCkiLz48L3N2Zz4=');
-    pointer-events: none;
-    z-index: 0;
+/* Custom Top Nav */
+.top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--zinc-800);
+    margin-bottom: 2rem;
+}
+.nav-logo {
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.nav-pill {
+    font-size: 0.7rem;
+    font-family: 'Geist Mono', monospace;
+    padding: 0.2rem 0.6rem;
+    border-radius: 99px;
+    border: 1px solid var(--zinc-800);
+    background: var(--zinc-900);
+    color: var(--emerald-500);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.nav-pill::before {
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--emerald-500);
 }
 
-/* Sidebar */
-[data-testid="stSidebar"] {
-    background-color: #09090b !important;
-    border-right: 1px solid var(--card-border);
-}
-
-/* Hide headers and standard menu */
-[data-testid="stHeader"] { background: transparent; }
-footer { visibility: hidden; }
-#MainMenu { visibility: hidden; }
-
-h1, h2, h3, h4 {
+/* Typography defaults override */
+h1, h2, h3, h4, h5 {
     font-family: 'Geist', sans-serif;
     font-weight: 600;
+    color: white;
     letter-spacing: -0.02em;
 }
 
-.hero-container {
-    padding: 3rem 0 2rem 0;
-    border-bottom: 1px solid var(--card-border);
-    margin-bottom: 3rem;
-    position: relative;
-    z-index: 1;
-}
-
-.hero-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: transparent;
-    border: 1px solid var(--card-border);
-    color: var(--text-muted);
-    padding: 4px 12px;
-    border-radius: 6px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 1rem;
-}
-
-.hero-title {
-    font-size: 2.5rem;
+/* Minimalist Staged Area */
+.section-header {
+    font-size: 0.8rem;
     font-weight: 700;
-    color: white;
-    margin: 0 0 0.5rem;
-    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--zinc-400);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
 }
 
-.hero-subtitle {
-    color: var(--text-muted);
-    font-size: 1rem;
-    font-weight: 400;
-    max-width: 600px;
-    margin: 0;
+/* Column Divider/Spacing */
+div[data-testid="stHorizontalBlock"] > div {
+    gap: 2rem;
 }
 
-/* Uploader Strict styling */
-div[data-testid="stFileUploadDropzone"] {
-    background: var(--bg-dark) !important;
-    border: 1px dashed var(--card-border) !important;
-    border-radius: 8px !important;
+/* Table Leaderboard Base */
+.table-row {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: var(--zinc-950);
+    border-bottom: 1px solid var(--zinc-800);
+    transition: background 0.1s;
 }
-div[data-testid="stFileUploadDropzone"]:hover {
-    border-color: var(--text-muted) !important;
+.table-row:hover {
+    background: var(--zinc-900);
+}
+.table-header {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--zinc-400);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 1rem;
+    background: var(--zinc-900);
+    border: 1px solid var(--zinc-800);
+    border-radius: 6px 6px 0 0;
 }
 
-/* Strict Button */
+/* Common metrics styles */
+div[data-testid="stMetric"] {
+    background: var(--zinc-900);
+    border: 1px solid var(--zinc-800);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+/* Forms buttons */
 div.stButton > button {
     background: white !important;
     color: black !important;
-    border: none !important;
-    border-radius: 6px !important;
+    font-family: 'Geist', sans-serif !important;
     font-weight: 600 !important;
+    border-radius: 6px !important;
+    border: none !important;
     font-size: 0.85rem !important;
-    padding: 0.6rem 1rem !important;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
-    width: 100% !important;
-    transition: opacity 0.1s ease !important;
 }
 div.stButton > button:hover {
-    opacity: 0.9 !important;
+    background: #e4e4e7 !important;
 }
 
-/* Clean Pro Grid Matrix */
-.candidate-card {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-    position: relative;
-}
-
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    border-bottom: 1px solid var(--card-border);
-    padding-bottom: 1rem;
-    margin-bottom: 1rem;
-}
-
-.candidate-name {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: white;
-    margin: 0 0 4px;
+/* Badge class utils */
+.verdict-badge {
     font-family: 'Geist Mono', monospace;
-}
-
-.status-badge {
-    display: inline-flex;
-    padding: 2px 8px;
-    border-radius: 4px;
     font-size: 0.65rem;
     font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
     text-transform: uppercase;
-    border: 1px solid var(--card-border);
-    background: rgba(255,255,255,0.05);
+    border: 1px solid transparent;
 }
-.status-hire { color: #10b981; border-color: rgba(16, 185, 129, 0.3); }
-.status-maybe { color: #f59e0b; border-color: rgba(245, 158, 11, 0.3); }
+.v-hire { background: rgba(16, 185, 129, 0.1); color: var(--emerald-500); border-color: rgba(16, 185, 129, 0.2); }
+.v-maybe { background: rgba(245, 158, 11, 0.1); color: var(--amber-500); border-color: rgba(245, 158, 11, 0.2); }
+.v-nohire { background: rgba(244, 63, 94, 0.1); color: var(--rose-500); border-color: rgba(244, 63, 94, 0.2); }
 
-.score-container {
-    text-align: right;
+/* Dense lists inside dialog */
+.dialog-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
 }
-.score-main {
+.stat-box {
+    background: var(--zinc-900);
+    border: 1px solid var(--zinc-800);
+    border-radius: 6px;
+    padding: 1rem;
+}
+.stat-box-lbl {
+    font-size: 0.7rem;
+    color: var(--zinc-400);
     font-family: 'Geist Mono', monospace;
-    font-size: 1.5rem;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+.stat-box-val {
+    font-size: 1.1rem;
     font-weight: 700;
     color: white;
 }
-
-.summary-text {
-    color: #d4d4d8;
-    font-size: 0.875rem;
-    margin-bottom: 1.5rem;
-    line-height: 1.5;
-}
-
-.metrics-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1px;
-    background: var(--card-border);
-    border: 1px solid var(--card-border);
-    border-radius: 6px;
-    overflow: hidden;
-}
-
-.metric-item {
-    background: var(--card-bg);
-    padding: 0.75rem 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 0.8rem;
-}
-
-.metric-label {
-    color: var(--text-muted);
-    font-weight: 500;
-    font-family: 'Geist Mono', monospace;
+.stat-box-desc {
     font-size: 0.75rem;
-}
-.metric-val {
-    font-weight: 600;
-    color: white;
-    font-family: 'Geist Mono', monospace;
+    color: var(--zinc-400);
+    margin-top: 0.5rem;
+    line-height: 1.4;
 }
 
-.metric-justification {
-    display: none; /* Hidden in dense mode */
+/* Strict input styling */
+div[data-testid="stFileUploadDropzone"] {
+    background: var(--zinc-900) !important;
+    border: 1px dashed var(--zinc-800) !important;
+    border-radius: 6px !important;
 }
 
-.prog-bar-bg { display: none; } /* Simplified */
+/* Sidebar forced minimal dark */
+[data-testid="stSidebar"] {
+    background-color: var(--zinc-950) !important;
+    border-right: 1px solid var(--zinc-800);
+}
 </style>
 """, unsafe_allow_html=True)
 
-# ── Sidebar Configurations ────────────────────────────────────────────────────
-with st.sidebar:
-    st.markdown("""
-    <h2 style='margin-bottom:0.5rem;'>⚡ Engine Config</h2>
-    <p style='font-size:0.85rem; color:#94a3b8; margin-bottom:1.5rem;'>Configure your API integrations here.</p>
-    """, unsafe_allow_html=True)
-    
-    api_key_input = st.text_input(
-        "Gemini API Key",
-        value=os.getenv("GEMINI_API_KEY", ""),
-        type="password",
-        help="Required to run text extraction and grading."
-    )
-    
-    if api_key_input:
-        os.environ["GEMINI_API_KEY"] = api_key_input
-    
-    st.markdown("---")
-    st.markdown("""
-    ### Talent Pool Index
-    The vector store was pre-cached. 
-    Active Entries: **Indexed Resumes**
-    """)
-    
-    st.info("💡 Tip: If no resumes are uploaded, the system intelligently falls back to the internal talent pool search.")
+# ── Top Nav Component ────────────────────────────────────────────────────────
+st.markdown("""
+<div class="top-nav">
+    <div class="nav-logo">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        NexHire AI
+    </div>
+    <div class="nav-pill">System Operational</div>
+</div>
+""", unsafe_allow_html=True)
 
-# ── Init Agent ──────────────────────────────────────────────────────────────
+# ── Init Agent Cache ─────────────────────────────────────────────────────────
 @st.cache_resource
 def get_agent():
     return create_agent_graph()
@@ -274,12 +239,17 @@ if "thread_id" not in st.session_state:
 
 config = {"configurable": {"thread_id": st.session_state.thread_id}}
 
-# ── Helper functions ──────────────────────────────────────────────────────────
+# ── Utility / Helpers ─────────────────────────────────────────────────────────
 
-def get_rec_styles(rec):
-    if rec == "Hire": return "status-hire", "score-hire"
-    if rec == "Maybe": return "status-maybe", "score-maybe"
-    return "status-nohire", "score-nohire"
+def get_verdict_html(rec):
+    if rec == "Hire": return f'<span class="verdict-badge v-hire">{rec}</span>'
+    if rec == "Maybe": return f'<span class="verdict-badge v-maybe">{rec}</span>'
+    return f'<span class="verdict-badge v-nohire">Pass</span>'
+
+def get_score_color(val):
+    if val >= 7.0: return "#10b981" # emerald
+    if val >= 5.0: return "#f59e0b" # amber
+    return "#f43f5e" # rose
 
 def generate_report(candidates):
     env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates')))
@@ -287,236 +257,276 @@ def generate_report(candidates):
     date_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     return template.render(candidates=candidates, date=date_str)
 
-# ── UI Layout ─────────────────────────────────────────────────────────────────
-
-st.markdown("""
-<div class="hero-container">
-    <div class="hero-badge">System Operational</div>
-    <h1 class="hero-title">NexHire AI</h1>
-    <p class="hero-subtitle">Direct execution panel for semantic deep audits utilizing standard state machines.</p>
-</div>
-""", unsafe_allow_html=True)
-
-# Main action box (Uploader area)
-st.markdown("""
-<div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:20px; padding:2rem; margin-bottom:2.5rem;">
-    <h3 style="margin-top:0; margin-bottom:1.5rem; color:white; display:flex; align-items:center; gap:10px;">📥 Upload Submissions</h3>
-""", unsafe_allow_html=True)
-
-col1, col2, col3 = st.columns(3)
-
-with col1:
-    st.markdown("**Job Description**")
-    jd_file = st.file_uploader("Drop job requirements (.txt, .pdf)", type=["txt", "pdf"], label_visibility="collapsed")
+@st.dialog("Candidate Intelligence Assessment", width="large")
+def show_candidate_detail(c, idx):
+    # Safe values extraction
+    dims = c.get("dimensions", {})
+    def get_safe(k): return dims.get(k, {}).get('score', 0)
     
-with col2:
-    st.markdown("**Resumes**")
-    resume_files = st.file_uploader("Drop PDFs or DOCX files", type=["pdf", "docx"], accept_multiple_files=True, label_visibility="collapsed")
+    c_id = c.get('candidate_id')
+    weighted = c.get('weighted_total', 0)
+    rec = c.get('recommendation', 'No Hire')
     
-with col3:
-    st.markdown("**LinkedIn Data**")
-    linkedin_files = st.file_uploader("Drop exported JSONs", type=["json"], accept_multiple_files=True, label_visibility="collapsed")
-
-st.markdown("</div>", unsafe_allow_html=True)
-
-_, btn_col, _ = st.columns([1, 1, 1])
-
-with btn_col:
-    trigger_btn = st.button("🚀 Analyze & Rank Talent")
-
-if trigger_btn:
-    if not jd_file:
-        st.warning("⚠️ Please upload a Job Description to proceed.")
-        st.stop()
-        
-    api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key:
-        st.error("❌ API KEY MISSING: Please enter your Google Gemini API Key in the sidebar to continue.")
-        st.stop()
-        
-    with st.status("🕵️ Agent working behind the scenes...", expanded=True) as status:
-        # Save files to temp
-        temp_dir = tempfile.mkdtemp()
-        paths = []
-        all_files = (resume_files or []) + (linkedin_files or [])
-        for f in all_files:
-            path = os.path.join(temp_dir, f.name)
-            with open(path, "wb") as out:
-                out.write(f.read())
-            paths.append(path)
-            
-        jd_temp_path = os.path.join(temp_dir, f"JD_{jd_file.name}")
-        with open(jd_temp_path, "wb") as f:
-            f.write(jd_file.getvalue())
-            
-        try:
-            jd_text, _ = extract_text_and_links(jd_temp_path)
-        except Exception as ex:
-            # Fallback
-            try:
-                jd_text = jd_file.read().decode("utf-8")
-            except:
-                st.error(f"Error extracting JD text: {ex}")
-                st.stop()
-        
-        initial_state = {
-            "jd_text": jd_text,
-            "uploaded_file_paths": paths,
-            "search_triggered": False,
-            "all_candidates": [],
-            "scored_candidates": []
-        }
-        
-        # Invoke agent
-        for event in agent.stream(initial_state, config):
-            for k, v in event.items():
-                st.write(f"✅ Step **{k}** executed.")
-                if v and "error" in v:
-                    st.error(f"Error during agent workflow: {v['error']}")
-                    st.stop()
-                
-                if k == "score_candidates":
-                    current_state = agent.get_state(config).values
-                    if not current_state.get("has_strong_fit", False) and not current_state.get("search_triggered", False):
-                        st.info("🔍 No direct matches above threshold in upload list. Activating Talent Pool Neural Search.", icon="⚡")
-        
-        status.update(label="Analysis Complete!", state="complete", expanded=False)
-        st.session_state.agent_state = agent.get_state(config).values
-        st.toast("Analysis successful! Scroll down for human review.", icon="🎉")
-
-# ── HIL Review UI ─────────────────────────────────────────────────────────────
-
-if "agent_state" in st.session_state:
-    state = st.session_state.agent_state
-    scored = state.get("scored_candidates", [])
+    score_col = get_score_color(weighted)
     
-    st.markdown("""
-    <div style="margin: 3rem 0 2rem;">
-        <h2 style="font-size:2rem; margin-bottom:0.5rem;">🔬 Decision Intelligence View</h2>
-        <p style="color:#94a3b8;">Review and refine evaluation rubrics using human-in-the-loop overrides.</p>
+    st.markdown(f"""
+    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #27272a; padding-bottom:1rem; margin-bottom:1rem;">
+        <div>
+            <h2 style="margin:0; font-family:'Geist Mono', monospace;">{escape(c_id)}</h2>
+            <div style="margin-top:0.5rem;">{get_verdict_html(rec)}</div>
+        </div>
+        <div style="text-align:right;">
+            <div style="font-size:2.5rem; font-weight:700; color:{score_col}; font-family:'Geist Mono'; line-height:1;">{weighted:.2f}</div>
+            <div style="font-size:0.7rem; color:#a1a1aa; font-family:'Geist Mono';">OVERALL SCORE</div>
+        </div>
     </div>
     """, unsafe_allow_html=True)
-    
-    # Render candidates
-    for i, c in enumerate(scored):
-        rec = c.get("recommendation", "No Hire")
-        status_cls, score_cls = get_rec_styles(rec)
-        
-        dims = c.get("dimensions", {})
-        
-        # Map dimensions and safely get numbers
-        def get_safe(d_key): return dims.get(d_key, {}).get('score', 0)
-        def get_pct(val): return (val / 10.0) * 100
-        
-        sk = get_safe('skills_match')
-        ex = get_safe('experience_relevance')
-        ed = get_safe('education_certs')
-        pr = get_safe('project_portfolio')
-        cm = get_safe('communication_quality')
 
-        st.markdown(f"""
-        <div class="candidate-card">
-            <div class="card-header">
-                <div>
-                    <h2 class="candidate-name">{escape(c.get('candidate_id'))}</h2>
-                    <span class="status-badge {status_cls}">{rec}</span>
-                </div>
-                <div class="score-container">
-                    <div class="score-main {score_cls}">{c.get('weighted_total', 0):.2f}</div>
-                    <div style="font-size:0.75rem; color:#94a3b8; font-weight:500; margin-top:4px; text-transform:uppercase; letter-spacing:1px;">Normalized Score / 10</div>
-                </div>
+    st.markdown("**Executive Summary**")
+    st.markdown(f"<div style='background:#18181b; padding:1rem; border-radius:6px; border:1px solid #27272a; font-size:0.9rem; margin-bottom:1.5rem;'>{escape(c.get('summary', ''))}</div>", unsafe_allow_html=True)
+    
+    st.markdown("**Dimension Breakdown**")
+    
+    c1, c2, c3 = st.columns(3)
+    
+    def render_box(col, label, score, just):
+        with col:
+            st.markdown(f"""
+            <div class="stat-box">
+                <div class="stat-box-lbl">{label}</div>
+                <div class="stat-box-val">{score} / 10</div>
+                <div class="stat-box-desc">{escape(just)}</div>
             </div>
+            """, unsafe_allow_html=True)
+
+    render_box(c1, "Skills Match", get_safe('skills_match'), dims.get('skills_match', {}).get('justification', ''))
+    render_box(c2, "Experience", get_safe('experience_relevance'), dims.get('experience_relevance', {}).get('justification', ''))
+    render_box(c3, "Education", get_safe('education_certs'), dims.get('education_certs', {}).get('justification', ''))
+    
+    st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
+    
+    c4, c5, _ = st.columns(3)
+    render_box(c4, "Projects", get_safe('project_portfolio'), dims.get('project_portfolio', {}).get('justification', ''))
+    render_box(c5, "Communication", get_safe('communication_quality'), dims.get('communication_quality', {}).get('justification', ''))
+
+    st.markdown("---")
+    st.markdown("**Human Override Control**")
+    with st.form(key=f"dialog_form_{idx}"):
+        ca, cb, cc = st.columns(3)
+        s1 = ca.slider("Skills Override", 0, 10, get_safe('skills_match'))
+        s2 = cb.slider("Exp Override", 0, 10, get_safe('experience_relevance'))
+        s3 = cc.slider("Edu Override", 0, 10, get_safe('education_certs'))
+        
+        cd, ce, _ = st.columns(3)
+        s4 = cd.slider("Project Override", 0, 10, get_safe('project_portfolio'))
+        s5 = ce.slider("Comm Override", 0, 10, get_safe('communication_quality'))
+        
+        reason = st.text_area("Log rationale for adjustment", placeholder="e.g., confirmed via manual vetting...")
+        
+        if st.form_submit_button("Persist Overrides", type="primary"):
+            if not reason.strip():
+                st.error("Audit log required.")
+            else:
+                log_override(st.session_state.thread_id, c_id, "manual_edit", dims['skills_match']['score'], "", s1, reason)
+                
+                dims['skills_match']['score'] = s1
+                dims['experience_relevance']['score'] = s2
+                dims['education_certs']['score'] = s3
+                dims['project_portfolio']['score'] = s4
+                dims['communication_quality']['score'] = s5
+                
+                w_tot = (s1*0.3) + (s2*0.25) + (s3*0.15) + (s4*0.2) + (s5*0.1)
+                c['weighted_total'] = w_tot
+                if w_tot >= 7.0: c['recommendation'] = "Hire"
+                elif w_tot >= 5.0: c['recommendation'] = "Maybe"
+                else: c['recommendation'] = "No Hire"
+                
+                st.session_state.agent_state["scored_candidates"][idx] = c
+                agent.update_state(config, {"scored_candidates": st.session_state.agent_state["scored_candidates"]})
+                st.success("Updating state layer...")
+                import time
+                time.sleep(0.3)
+                st.rerun()
+
+# ── Workspace Construction ────────────────────────────────────────────────────
+
+workspace_l, workspace_r = st.columns([1, 2])
+
+with workspace_l:
+    st.markdown('<div class="section-header">Job Context</div>', unsafe_allow_html=True)
+    
+    with st.container(border=True):
+        st.markdown("**Required Credentials**")
+        api_key_input = st.text_input(
+            "Gemini API Token",
+            value=os.getenv("GEMINI_API_KEY", ""),
+            type="password",
+            help="Temporary injection in process memory only."
+        )
+        if api_key_input:
+            os.environ["GEMINI_API_KEY"] = api_key_input
             
-            <div class="summary-text">{escape(c.get('summary', ''))}</div>
-            
-            <div class="metrics-grid">
-                <div class="metric-item">
-                    <span class="metric-label">Skills Match (30%)</span>
-                    <span class="metric-val">{sk} / 10</span>
-                </div>
-                <div class="metric-item">
-                    <span class="metric-label">Relevance (25%)</span>
-                    <span class="metric-val">{ex} / 10</span>
-                </div>
-                <div class="metric-item">
-                    <span class="metric-label">Education (15%)</span>
-                    <span class="metric-val">{ed} / 10</span>
-                </div>
-                <div class="metric-item">
-                    <span class="metric-label">Projects (20%)</span>
-                    <span class="metric-val">{pr} / 10</span>
-                </div>
-                <div class="metric-item">
-                    <span class="metric-label">Communication (10%)</span>
-                    <span class="metric-val">{cm} / 10</span>
-                </div>
+        st.divider()
+        
+        st.markdown("**Description Protocol**")
+        jd_file = st.file_uploader("Drop job file", type=["txt", "pdf"], label_visibility="collapsed")
+        
+        st.markdown("**Raw Resumes**")
+        resume_files = st.file_uploader("Drop resume set", type=["pdf", "docx"], accept_multiple_files=True, label_visibility="collapsed")
+        
+        st.markdown("**Auxiliary Data**")
+        linkedin_files = st.file_uploader("Drop JSON files", type=["json"], accept_multiple_files=True, label_visibility="collapsed")
+        
+        st.markdown("<div style='height:1rem'></div>", unsafe_allow_html=True)
+        analyze_btn = st.button("Execute Audit Pipeline", type="primary", use_container_width=True)
+
+    # Audit Trigger logic
+    if analyze_btn:
+        if not jd_file:
+            st.warning("Mandatory parameter missing: Job Description.")
+        elif not os.getenv("GEMINI_API_KEY"):
+            st.error("Execution halted: Authorization token required.")
+        else:
+            with st.status("Initializing semantic graph flow...", expanded=True) as status:
+                temp_dir = tempfile.mkdtemp()
+                paths = []
+                all_files = (resume_files or []) + (linkedin_files or [])
+                for f in all_files:
+                    fpath = os.path.join(temp_dir, f.name)
+                    with open(fpath, "wb") as out: out.write(f.read())
+                    paths.append(fpath)
+                
+                jd_temp = os.path.join(temp_dir, f"JD_{jd_file.name}")
+                with open(jd_temp, "wb") as f: f.write(jd_file.getvalue())
+                try:
+                    jd_txt, _ = extract_text_and_links(jd_temp)
+                except:
+                    try: jd_txt = jd_file.read().decode("utf-8")
+                    except: st.error("JD extract err"); st.stop()
+                
+                init_state = {
+                    "jd_text": jd_txt,
+                    "uploaded_file_paths": paths,
+                    "search_triggered": False,
+                    "all_candidates": [],
+                    "scored_candidates": []
+                }
+                
+                for ev in agent.stream(init_state, config):
+                    for step, res in ev.items():
+                        st.write(f"› Resolved: `{step}`")
+                
+                status.update(label="Flow Completed", state="complete", expanded=False)
+                st.session_state.agent_state = agent.get_state(config).values
+                st.rerun()
+
+with workspace_r:
+    st.markdown('<div class="section-header">Ranked Leaderboard</div>', unsafe_allow_html=True)
+    
+    if "agent_state" in st.session_state:
+        state = st.session_state.agent_state
+        raw_list = state.get("scored_candidates", [])
+        
+        # Sort by overall weighted score descending by default
+        candidates = sorted(raw_list, key=lambda x: x.get('weighted_total', 0), reverse=True)
+        
+        # Top Metrics strip
+        num_total = len(candidates)
+        avg_score = sum(c.get('weighted_total', 0) for c in candidates) / num_total if num_total > 0 else 0
+        num_hire = len([c for c in candidates if c.get('recommendation') == "Hire"])
+        hire_rate = (num_hire / num_total * 100) if num_total > 0 else 0
+        
+        m1, m2, m3 = st.columns(3)
+        m1.metric("Total Candidates", f"{num_total}")
+        m2.metric("Average Score", f"{avg_score:.2f}")
+        m3.metric("Shortlist Rate", f"{hire_rate:.1f}%")
+        
+        st.markdown("<div style='height:1.5rem'></div>", unsafe_allow_html=True)
+        
+        # Segmented Control for filtering
+        filter_options = ["All", "Hire", "Maybe", "No Hire"]
+        selected_filter = st.segmented_control("Filter by verdict", options=filter_options, default="All", selection_mode="single", label_visibility="collapsed")
+        
+        filtered_list = candidates
+        if selected_filter and selected_filter != "All":
+            filtered_list = [c for c in candidates if c.get('recommendation') == selected_filter]
+        
+        st.markdown("<div style='height:1rem'></div>", unsafe_allow_html=True)
+        
+        # Manual Header Construction
+        st.markdown("""
+        <div class="table-header">
+            <div style="display:grid; grid-template-columns: 60px 1fr 100px 100px 80px; align-items:center;">
+                <div>Rank</div>
+                <div>Identifier</div>
+                <div style="text-align:center;">Verdict</div>
+                <div style="text-align:right;">Score</div>
+                <div style="text-align:right; padding-right:10px;">Action</div>
             </div>
         </div>
         """, unsafe_allow_html=True)
         
-        # Override Expander styled with streamlit native expander inside the iterative loop
-        with st.expander(f"🛠️ Modify Assessment Scores: {c.get('candidate_id')}"):
-            with st.form(key=f"form_{i}"):
-                st.markdown("#### Override Weights")
-                colA, colB, colC = st.columns(3)
-                s1 = colA.slider("Skills Match", 0, 10, get_safe('skills_match'), key=f"s1_{i}")
-                s2 = colB.slider("Experience", 0, 10, get_safe('experience_relevance'), key=f"s2_{i}")
-                s3 = colC.slider("Education", 0, 10, get_safe('education_certs'), key=f"s3_{i}")
+        if not filtered_list:
+            st.info("No candidate records match the set viewport filter.")
+        else:
+            # Iterate and render dynamic rows
+            for idx, c in enumerate(filtered_list):
                 
-                colD, colE, _ = st.columns(3)
-                s4 = colD.slider("Projects", 0, 10, get_safe('project_portfolio'), key=f"s4_{i}")
-                s5 = colE.slider("Communication", 0, 10, get_safe('communication_quality'), key=f"s5_{i}")
-                
-                reason = st.text_area("Audit Logging: Reason for override", placeholder="e.g., Spoke to candidate, confirmed AWS certification not on resume...", key=f"reason_{i}")
-                
-                st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
-                submit = st.form_submit_button("Confirm Overrides")
-                
-                if submit:
-                    if not reason.strip():
-                        st.error("Mandatory: Please log a reason for change.")
-                    else:
-                        log_override(st.session_state.thread_id, c.get('candidate_id'), "skills_match", dims['skills_match']['score'], dims['skills_match']['justification'], s1, reason)
+                col_wrap = st.container(border=True)
+                with col_wrap:
+                    # Internal grid for aligning content cleanly next to streamlit buttons
+                    # Use columns to hold standard layout data
+                    c_rank, c_name, c_verd, c_score, c_btn = st.columns([0.5, 2.5, 1, 1, 1])
+                    
+                    w_score = c.get('weighted_total', 0)
+                    clr = get_score_color(w_score)
+                    rec = c.get('recommendation', 'No Hire')
+                    
+                    with c_rank:
+                        st.markdown(f"<div style='font-family:Geist Mono; font-size:0.8rem; padding-top:6px; color:#a1a1aa;'>#{idx+1}</div>", unsafe_allow_html=True)
+                    with c_name:
+                        st.markdown(f"<div style='font-weight:600; font-size:0.9rem; padding-top:6px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;'>{escape(c.get('candidate_id'))}</div>", unsafe_allow_html=True)
+                    with c_verd:
+                        st.markdown(f"<div style='text-align:center; padding-top:6px;'>{get_verdict_html(rec)}</div>", unsafe_allow_html=True)
+                    with c_score:
+                        st.markdown(f"<div style='text-align:right; padding-top:4px; font-weight:700; font-family:Geist Mono; color:{clr}; font-size:1rem;'>{w_score:.2f}</div>", unsafe_allow_html=True)
+                    with c_btn:
+                        # We locate original index in non-filtered list if state update is required
+                        actual_idx = 0
+                        for search_i, raw_c in enumerate(st.session_state.agent_state["scored_candidates"]):
+                            if raw_c.get('candidate_id') == c.get('candidate_id'):
+                                actual_idx = search_i
+                                break
                         
-                        dims['skills_match']['score'] = s1
-                        dims['experience_relevance']['score'] = s2
-                        dims['education_certs']['score'] = s3
-                        dims['project_portfolio']['score'] = s4
-                        dims['communication_quality']['score'] = s5
-                        
-                        w_tot = (s1*0.3) + (s2*0.25) + (s3*0.15) + (s4*0.2) + (s5*0.1)
-                        c['weighted_total'] = w_tot
-                        if w_tot >= 7.0: c['recommendation'] = "Hire"
-                        elif w_tot >= 5.0: c['recommendation'] = "Maybe"
-                        else: c['recommendation'] = "No Hire"
-                        
-                        st.session_state.agent_state["scored_candidates"][i] = c
-                        agent.update_state(config, {"scored_candidates": st.session_state.agent_state["scored_candidates"]})
-                        st.success("Successfully persisted local cache. Rerendering graph...")
-                        import time
-                        time.sleep(0.5)
-                        st.rerun()
-
-    st.markdown("<hr style='opacity:0.1; margin: 3rem 0;'>", unsafe_allow_html=True)
-    _, btn_finalize_col, _ = st.columns([1,2,1])
-    
-    with btn_finalize_col:
-        if st.button("📜 Export Intelligence Report", type="primary", use_container_width=True):
-            with st.spinner("Generating Rendered HTML Pipeline..."):
-                # Resume graph
+                        if st.button("View", key=f"btn_view_{c.get('candidate_id')}", use_container_width=True):
+                            show_candidate_detail(c, actual_idx)
+                            
+        # Finalize action
+        st.markdown("<div style='margin-top:3rem'></div>", unsafe_allow_html=True)
+        b1, b2 = st.columns([1,1])
+        with b2:
+            if st.button("Generate Export Audit Payload", type="secondary", use_container_width=True):
                 agent.invoke(Command(resume="continue"), config)
+                st.session_state.final_report = generate_report(candidates)
+                st.success("Snapshot constructed.")
                 
-                html_content = generate_report(st.session_state.agent_state["scored_candidates"])
-                st.session_state.report_html = html_content
-                st.toast("Intelligence report generated successfully!", icon="📈")
+        if "final_report" in st.session_state:
+            st.download_button("Download Rendered Assessment Data", data=st.session_state.final_report, file_name=f"export_{datetime.now().strftime('%Y%m%d')}.html", mime="text/html", use_container_width=True)
             
-if "report_html" in st.session_state:
-    st.markdown("<div style='margin: 20px auto; text-align:center;'>", unsafe_allow_html=True)
-    st.download_button(
-        label="📥 Download Final Audit Report",
-        data=st.session_state.report_html,
-        file_name=f"NexHire_Report_{datetime.now().strftime('%Y%m%d')}.html",
-        mime="text/html",
-        use_container_width=True
-    )
-    st.markdown("</div>", unsafe_allow_html=True)
+    else:
+        # Empty state
+        st.markdown("""
+        <div style="text-align:center; padding: 5rem 2rem; border: 1px dashed var(--zinc-800); border-radius: 8px; background:var(--zinc-900);">
+            <div style="color:var(--zinc-400); font-size:0.9rem; font-family:Geist Mono;">AWAITING_EVALUATION_STREAM</div>
+            <div style="font-size:0.8rem; color:#52525b; margin-top:0.5rem;">Execute audit flow in the configuration workspace on the left to populate grid.</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+# ── System Settings Overlay (Fallback Hidden Sidebar) ───────────────────────
+with st.sidebar:
+    st.markdown("### System Details")
+    st.caption(f"Active Thread Ref: `{st.session_state.thread_id}`")
+    st.caption("Talent Pool Strategy: FAISS Local Matrix")
+    if st.button("Hard Purge Cache"):
+        st.session_state.clear()
+        st.rerun()

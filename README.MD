@@ -63,8 +63,8 @@ graph TD
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/SanchitPandey26/hirelens-ai.git
-cd hirelens-ai
+git clone https://github.com/Shreya-singh22/NexHire.git
+cd NexHire
 ```
 
 ### 2. Install Dependencies
@@ -108,15 +108,13 @@ streamlit run streamlit_app.py
 ## Project Structure
 
 ```text
-hirelens-ai/
+NexHire/
 ├── agent/                          # LangGraph agent orchestrator & state
 ├── resume_model/                   # Retrieval, Scoring, API integration, Text extraction
 ├── security/                       # Centralized PII masking + input sanitization
 ├── templates/                      # Jinja2 HTML report templates
 ├── audit_logs/                     # Generated at runtime (HIL overrides)
 ├── index_store/                    # FAISS & BM25 pre-built indexes
-├── resume_data/                    # Folder for bulk candidate resumes
-├── build_index.py                  # Script to build vector indices
 ├── streamlit_app.py                # Streamlit Interactive UI
 ├── requirements.txt                # Python dependencies
 └── .env                            # Environment variables
@@ -127,8 +125,7 @@ hirelens-ai/
 Pull requests are welcome! For major architectural changes, please open an issue first to discuss what you would like to change.
 
 ## License
-
-*This project is licensed under the [MIT License](./LICENSE) © 2026 Sanchit Pandey.*
+All rights reserved.
 
 ## Contact
 
