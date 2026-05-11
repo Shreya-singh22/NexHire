@@ -1,132 +1,83 @@
-# NexHire AI — Agentic Resume-JD Matching System
+# NexHire
 
-A modern, modular AI agent for parsing, matching, and evaluating resumes against job descriptions. Built using **LangGraph**, **Google Gemini LLM**, **FAISS**, **BM25**, and **Streamlit**.
+**The Advanced Agentic Recruiter Suite for Modern HR Operations.**
 
-NexHire AI orchestrates a stateful evaluation process, featuring **5-dimension rubric scoring**, **Human-in-the-loop (HIL) overrides**, **PII masking**, and automatic **Talent Pool retrieval**.
+NexHire is a rigorous, low-latency talent intelligence dashboard constructed specifically for professional semantic audits. Driven by a native LangGraph state machine and robust Google Gemini ingestion pipelines, it enforces categorical, dimension-based auditing across distributed resume repositories.
 
-## Key Features
+---
 
-- **Agentic Orchestration (LangGraph)**: A stateful agent coordinating the extraction, retrieval, scoring, and review phases. The agent automatically triggers a talent pool search if no uploaded resume is a strong fit.
-- **5-Dimension Rubric Scoring**: Deep LLM evaluation across Skills (30%), Experience (25%), Education (15%), Projects (20%), and Communication (10%) with Hire/No-Hire mapping.
-- **Hybrid Search Retrieval**: Two-tower FAISS semantic + BM25 keyword retrieval, fused with Reciprocal Rank Fusion (RRF).
-- **Multi-Format Parsing**: Extracts structured data from PDF, DOCX, TXT, and **LinkedIn Export JSONs**.
-- **Security & Privacy**: Built-in PII masking to redact emails/phones *before* any data is sent to the cloud API to maximize privacy, and structured output schemas to prevent prompt injection.
-- **Human-in-the-Loop & Audit Logging**: Review and override LLM scores directly in the UI. Full JSON audit trails are generated per session, acting as a permanent record of HR decisions to satisfy transparency requirements.
+## High-Level Architectural Directives
 
-## System Architecture
+- **⚡ Native Recruiter Dashboard**: Single-pane, high-density analytical environment. Direct injection of job constraints coupled with dynamic sortable assessment leaderboards.
+- ** High-Order Orchestration**: Constructed with LangGraph to ensure cyclic state integrity, handling ingest branch forks and asynchronous human-in-the-loop validation stages.
+- ** Enterprise Data Privacy**: Automatic algorithmic redaction of PII vectors before transit to external LLM endpoints. No local persistent caches of raw identifiers.
+- ** Dense 5D Matrix Evaluation**: Algorithmic weighting protocol dissecting candidates across distinct scoring boundaries:
+  - **Core Skills Array** (30%)
+  - **Contextual Relevance** (25%)
+  - **Standard Credentials** (15%)
+  - **Production Architecture** (20%)
+  - **Linguistic Precision** (10%)
 
-### Agent Control Flow
+---
 
-The core of NexHire AI is powered by a LangGraph state machine. Here is the control flow of the agent:
+## Deployment Stack
 
-```mermaid
-graph TD
-    A[Start: Analyze Input] --> B[Parse Job Description]
-    B --> C{Are Resumes Uploaded?}
-    C -->|Yes| D[Ingest Uploaded Resumes]
-    C -->|No| E[Search Talent Pool Database]
-    D --> F{Any Strong Fits?}
-    F -->|Yes| G[Score Candidates]
-    F -->|No| E
-    E --> G
-    G --> H[(Interrupt: Human Review)]
-    H -.->|User submits overrides| I[Apply Human Overrides]
-    I --> J[Generate Evaluation Report]
-    J --> K[End]
+- **State Processor**: LangGraph
+- **Reasoning Core**: Google Gemini Runtime
+- **Search Engines**: Linear FAISS + Rank-BM25 Fusion
+- **Render Engine**: Streamlit Custom Chassis
+- **Distribution**: Production Docker Containers Ready
 
-    
-```
+---
 
-### Core Components
+## Operational Installation
 
-1. **Agent Graph & Tools (`agent/`)**:
-   - `graph.py`: The LangGraph state machine orchestrating the workflow.
-   - `state.py`: Defines the internal state schema shared across steps.
-   - `tools.py`: Wraps modules (parsing, searching, scoring) into LangGraph tool nodes.
-   - `audit.py`: Handles overriding and logging HR decisions.
-2. **Embedding & Matching (`resume_model/embedding_matching.py`)**: The `HybridResumeRetriever` component handling FAISS and BM25 offline search over bulk candidate records.
-3. **LLM Fit Scorer (`resume_model/llm_fit_scorer.py`)**: Enforces the strict 5-dimension scoring rubric via Gemini LLM.
-4. **Data Extraction & API Integrations**: Google Gemini integrations to convert PDFs and DOCX files to structured attributes.
-5. **Security & PII (`security/pii_masker.py`)**: Pre-processing step before API calls to prevent sensitive data leaks.
-
-## Tech Stack
-
-- **Orchestration**: LangGraph — *Chosen for its native support for stateful 'Human-in-the-Loop' interactions and complex branching logic.*
-- **LLM**: Google Gemini API (gemini-3.1-flash-lite-preview)
-- **Vector Search**: FAISS + Rank-BM25
-- **Frontend**: Streamlit
-- **Parsing**: PyMuPDF, python-docx
-- **Reporting**: Jinja2 (HTML Generation)
-
-## Getting Started
-
-### 1. Clone the Repository
-
+### 1. Source Acquisition
+Clone the secure repository definition:
 ```bash
 git clone https://github.com/Shreya-singh22/NexHire.git
 cd NexHire
 ```
 
-### 2. Install Dependencies
-
+### 2. Dependency Configuration
+Configure standard python runtime packages:
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Configure Environment Variables
-
-Create a `.env` file in the project root:
-
+### 3. Authentication Trigger
+Establish secure environment keys. Create a root `.env` record and apply your authorization token:
 ```dotenv
-GEMINI_API_KEY=your-google-gemini-api-key-here
+GEMINI_API_KEY=your_active_secure_token_here
 ```
 
-### 4. Add Data & Build Index
+---
 
-1. Place candidate resumes (`.pdf`, `.docx`, `.json`) in the `resume_data/` folder.
-2. Build the FAISS and BM25 offline indexes by running:
+## Execution Guidelines
 
-```bash
-python build_index.py
-```
-
-*This extracts structured data via Gemini and builds indices in `index_store/`.*
-
-## Running the Streamlit App
-
+Launch the production dashboard cluster locally:
 ```bash
 streamlit run streamlit_app.py
 ```
 
-**Features in the UI:**
+**Console Access Protocol**:
+1. Drop standard `PDF` or `TXT` requirement specs into the primary vault.
+2. Feed candidate datasets (`DOCX`, `PDF`, `JSON` exported streams).
+3. Initialize **Audit Pipeline** to engage the agent flow.
+4. Analyze telemetry via the **Leaderboard** and override dimensional matrices.
 
-- **Upload**: Provide a Job Description and Candidate Resumes (or LinkedIn JSON exports).
-- **Agent Workflow**: The LangGraph agent will automatically parse inputs, retrieve candidates from the internal talent pool (if needed), and score them against the rubric.
-- **Review & Override**: Use the sliders to override specific dimension scores (e.g., adjust "Skills Match" from 7 to 9 based on interview notes).
-- **Download**: Generate and download HTML evaluation reports.
+---
 
-## Project Structure
+## Project Blueprint
 
-```text
+```plaintext
 NexHire/
-├── agent/                          # LangGraph agent orchestrator & state
-├── resume_model/                   # Retrieval, Scoring, API integration, Text extraction
-├── security/                       # Centralized PII masking + input sanitization
-├── templates/                      # Jinja2 HTML report templates
-├── audit_logs/                     # Generated at runtime (HIL overrides)
-├── index_store/                    # FAISS & BM25 pre-built indexes
-├── streamlit_app.py                # Streamlit Interactive UI
-├── requirements.txt                # Python dependencies
-└── .env                            # Environment variables
+├── agent/             # Semantic Control Unit & Graph Trees
+├── resume_model/      # Vector Engineering & Ingestion logic
+├── templates/         # Final Export Rendering Schema
+├── index_store/       # Optimized Search Index Storage
+├── Dockerfile         # Containerized Runtime Profile
+└── streamlit_app.py   # Application Entrance Node
 ```
 
-## Contributing
-
-Pull requests are welcome! For major architectural changes, please open an issue first to discuss what you would like to change.
-
-## License
-All rights reserved.
-
-## Contact
-
-For questions or demo requests, contact [sanchit.pdy@gmail.com].
+*All code definitions within this system are confidential and reserved solely for NexHire operation workflows.*
