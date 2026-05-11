@@ -12,6 +12,7 @@ from agent.graph import create_agent_graph
 from agent.audit import log_override
 from langchain_core.runnables import RunnableConfig
 from langgraph.types import Command
+from resume_model.text_extract import extract_text_and_links
 
 load_dotenv()
 
@@ -26,287 +27,212 @@ st.set_page_config(
 # ── Custom CSS ────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Geist:wght@400;500;600;700&display=swap');
 
 :root {
-    --primary: #6366f1;
-    --primary-glow: rgba(99, 102, 241, 0.5);
-    --bg-dark: #050508;
-    --card-bg: rgba(255, 255, 255, 0.03);
-    --card-border: rgba(255, 255, 255, 0.08);
-    --text-main: #e2e8f0;
-    --text-muted: #94a3b8;
+    --primary: #ffffff;
+    --bg-dark: #000000;
+    --card-bg: #09090b;
+    --card-border: #27272a;
+    --text-main: #fafafa;
+    --text-muted: #a1a1aa;
     --hire-color: #10b981;
-    --maybe-color: #f59e0b;
-    --nohire-color: #ef4444;
 }
 
-/* Main Container and Background Styling */
 .stApp {
     background-color: var(--bg-dark);
-    background-image: 
-        radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.12) 0%, transparent 35%),
-        radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.1) 0%, transparent 40%),
-        radial-gradient(circle at 50% 80%, rgba(236, 72, 153, 0.05) 0%, transparent 45%);
     color: var(--text-main);
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: 'Geist', sans-serif;
+    letter-spacing: -0.01em;
 }
 
-/* Sidebar styling */
+/* Grid background effect mimicking pure pro layout */
+.stApp::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNCkiLz48L3N2Zz4=');
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Sidebar */
 [data-testid="stSidebar"] {
-    background-color: rgba(10, 10, 15, 0.7) !important;
-    backdrop-filter: blur(10px);
+    background-color: #09090b !important;
     border-right: 1px solid var(--card-border);
 }
 
-[data-testid="stHeader"] {
-    background: transparent;
-}
-
-/* Hide streamlit elements */
-footer {visibility: hidden;}
-#MainMenu {visibility: hidden;}
+/* Hide headers and standard menu */
+[data-testid="stHeader"] { background: transparent; }
+footer { visibility: hidden; }
+#MainMenu { visibility: hidden; }
 
 h1, h2, h3, h4 {
-    font-family: 'Space Grotesk', sans-serif;
-    letter-spacing: -0.03em;
+    font-family: 'Geist', sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.02em;
 }
 
-/* Hero Section Enhancements */
 .hero-container {
-    padding: 4rem 1rem 2rem;
-    text-align: center;
+    padding: 3rem 0 2rem 0;
+    border-bottom: 1px solid var(--card-border);
+    margin-bottom: 3rem;
     position: relative;
-}
-
-.hero-glow {
-    position: absolute;
-    top: -20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 200px;
-    height: 100px;
-    background: linear-gradient(90deg, #6366f1, #a855f7);
-    filter: blur(80px);
-    opacity: 0.4;
-    z-index: -1;
+    z-index: 1;
 }
 
 .hero-badge {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    background: rgba(99, 102, 241, 0.1);
-    border: 1px solid rgba(99, 102, 241, 0.2);
-    color: #818cf8;
-    padding: 6px 16px;
-    border-radius: 20px;
-    font-size: 0.75rem;
+    gap: 6px;
+    background: transparent;
+    border: 1px solid var(--card-border);
+    color: var(--text-muted);
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 0.7rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 0 15px rgba(99, 102, 241, 0.1);
-    animation: pulse 2s infinite ease-in-out;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); opacity: 0.9;}
-    50% { transform: scale(1.02); opacity: 1;}
-    100% { transform: scale(1); opacity: 0.9;}
+    letter-spacing: 0.5px;
+    margin-bottom: 1rem;
 }
 
 .hero-title {
-    font-size: clamp(2.8rem, 6vw, 4.5rem);
-    font-weight: 800;
-    background: linear-gradient(to bottom right, #ffffff 20%, #94a3b8 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 0.5rem;
-    line-height: 1.1;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: white;
+    margin: 0 0 0.5rem;
+    letter-spacing: -0.03em;
 }
 
 .hero-subtitle {
     color: var(--text-muted);
-    font-size: 1.1rem;
-    max-width: 600px;
-    margin: 0 auto 2rem;
+    font-size: 1rem;
     font-weight: 400;
+    max-width: 600px;
+    margin: 0;
 }
 
-/* Premium Uploader Box styling override */
+/* Uploader Strict styling */
 div[data-testid="stFileUploadDropzone"] {
-    background: rgba(255, 255, 255, 0.02) !important;
-    border: 2px dashed rgba(255, 255, 255, 0.1) !important;
-    border-radius: 16px !important;
-    transition: all 0.3s ease;
+    background: var(--bg-dark) !important;
+    border: 1px dashed var(--card-border) !important;
+    border-radius: 8px !important;
 }
-
 div[data-testid="stFileUploadDropzone"]:hover {
-    border-color: var(--primary) !important;
-    background: rgba(99, 102, 241, 0.04) !important;
+    border-color: var(--text-muted) !important;
 }
 
-/* Custom styled button style */
+/* Strict Button */
 div.stButton > button {
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
-    color: white !important;
+    background: white !important;
+    color: black !important;
     border: none !important;
-    padding: 0.75rem 2rem !important;
+    border-radius: 6px !important;
     font-weight: 600 !important;
-    letter-spacing: 0.5px !important;
-    border-radius: 12px !important;
-    box-shadow: 0 4px 20px rgba(79, 70, 229, 0.3) !important;
-    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    font-size: 0.85rem !important;
+    padding: 0.6rem 1rem !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
     width: 100% !important;
+    transition: opacity 0.1s ease !important;
 }
-
 div.stButton > button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(79, 70, 229, 0.5) !important;
+    opacity: 0.9 !important;
 }
 
-/* Candidate Card V2 */
+/* Clean Pro Grid Matrix */
 .candidate-card {
-    background: rgba(15, 15, 24, 0.6);
-    backdrop-filter: blur(12px);
+    background: var(--card-bg);
     border: 1px solid var(--card-border);
-    border-radius: 24px;
-    padding: 2rem;
-    margin-bottom: 2rem;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
     position: relative;
-    overflow: hidden;
-    transition: transform 0.3s ease, border-color 0.3s ease;
-}
-
-.candidate-card:hover {
-    border-color: rgba(255, 255, 255, 0.15);
-    transform: translateY(-2px);
-}
-
-.candidate-card::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 150px;
-    height: 150px;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
-    z-index: 0;
 }
 
 .card-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    padding-bottom: 1.25rem;
-    margin-bottom: 1.25rem;
-    position: relative;
-    z-index: 1;
+    border-bottom: 1px solid var(--card-border);
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
 }
 
 .candidate-name {
-    font-size: 1.6rem;
-    font-weight: 700;
+    font-size: 1.25rem;
+    font-weight: 600;
     color: white;
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 4px;
+    font-family: 'Geist Mono', monospace;
 }
 
 .status-badge {
     display: inline-flex;
-    align-items: center;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.65rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    border: 1px solid var(--card-border);
+    background: rgba(255,255,255,0.05);
 }
-
-.status-hire { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
-.status-maybe { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
-.status-nohire { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+.status-hire { color: #10b981; border-color: rgba(16, 185, 129, 0.3); }
+.status-maybe { color: #f59e0b; border-color: rgba(245, 158, 11, 0.3); }
 
 .score-container {
     text-align: right;
 }
-
 .score-main {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 2.5rem;
+    font-family: 'Geist Mono', monospace;
+    font-size: 1.5rem;
     font-weight: 700;
-    line-height: 1;
-}
-.score-hire { color: #10b981; text-shadow: 0 0 15px rgba(16, 185, 129, 0.3); }
-.score-maybe { color: #f59e0b; text-shadow: 0 0 15px rgba(245, 158, 11, 0.3); }
-.score-nohire { color: #ef4444; text-shadow: 0 0 15px rgba(239, 68, 68, 0.3); }
-
-.summary-text {
-    color: #cbd5e1;
-    font-size: 0.95rem;
-    line-height: 1.6;
-    margin-bottom: 1.5rem;
-    position: relative;
-    z-index: 1;
-}
-
-/* Rubric Grid and Progress Bars */
-.metrics-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1rem;
-    position: relative;
-    z-index: 1;
-}
-
-.metric-item {
-    background: rgba(255, 255, 255, 0.02);
-    border-radius: 12px;
-    padding: 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.metric-top {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 8px;
-}
-
-.metric-label {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.metric-val {
-    font-weight: 700;
-    font-family: 'Space Grotesk';
     color: white;
 }
 
-.prog-bar-bg {
-    height: 6px;
-    background: rgba(255, 255, 255, 0.06);
-    border-radius: 3px;
+.summary-text {
+    color: #d4d4d8;
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1px;
+    background: var(--card-border);
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
     overflow: hidden;
 }
 
-.prog-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--primary), #8b5cf6);
-    border-radius: 3px;
-    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+.metric-item {
+    background: var(--card-bg);
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.8rem;
+}
+
+.metric-label {
+    color: var(--text-muted);
+    font-weight: 500;
+    font-family: 'Geist Mono', monospace;
+    font-size: 0.75rem;
+}
+.metric-val {
+    font-weight: 600;
+    color: white;
+    font-family: 'Geist Mono', monospace;
 }
 
 .metric-justification {
-    font-size: 0.75rem;
-    color: #94a3b8;
-    margin-top: 8px;
-    font-style: italic;
-    line-height: 1.4;
+    display: none; /* Hidden in dense mode */
 }
+
+.prog-bar-bg { display: none; } /* Simplified */
 </style>
 """, unsafe_allow_html=True)
 
@@ -365,10 +291,9 @@ def generate_report(candidates):
 
 st.markdown("""
 <div class="hero-container">
-    <div class="hero-glow"></div>
-    <div class="hero-badge"><span>✨</span> Powered by Google Gemini & LangGraph</div>
+    <div class="hero-badge">System Operational</div>
     <h1 class="hero-title">NexHire AI</h1>
-    <p class="hero-subtitle">Modern agentic screening system performing deep semantic evaluations against custom job descriptions using a 5-dimension rubric.</p>
+    <p class="hero-subtitle">Direct execution panel for semantic deep audits utilizing standard state machines.</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -382,7 +307,7 @@ col1, col2, col3 = st.columns(3)
 
 with col1:
     st.markdown("**Job Description**")
-    jd_file = st.file_uploader("Drop job requirements (.txt)", type=["txt"], label_visibility="collapsed")
+    jd_file = st.file_uploader("Drop job requirements (.txt, .pdf)", type=["txt", "pdf"], label_visibility="collapsed")
     
 with col2:
     st.markdown("**Resumes**")
@@ -420,7 +345,19 @@ if trigger_btn:
                 out.write(f.read())
             paths.append(path)
             
-        jd_text = jd_file.read().decode("utf-8")
+        jd_temp_path = os.path.join(temp_dir, f"JD_{jd_file.name}")
+        with open(jd_temp_path, "wb") as f:
+            f.write(jd_file.getvalue())
+            
+        try:
+            jd_text, _ = extract_text_and_links(jd_temp_path)
+        except Exception as ex:
+            # Fallback
+            try:
+                jd_text = jd_file.read().decode("utf-8")
+            except:
+                st.error(f"Error extracting JD text: {ex}")
+                st.stop()
         
         initial_state = {
             "jd_text": jd_text,
@@ -493,35 +430,25 @@ if "agent_state" in st.session_state:
             <div class="summary-text">{escape(c.get('summary', ''))}</div>
             
             <div class="metrics-grid">
-                <!-- Skills -->
                 <div class="metric-item">
-                    <div class="metric-top"><span class="metric-label">Skills (30%)</span><span class="metric-val">{sk} / 10</span></div>
-                    <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:{get_pct(sk)}%"></div></div>
-                    <div class="metric-justification">{escape(dims.get('skills_match', {}).get('justification', ''))}</div>
+                    <span class="metric-label">Skills Match (30%)</span>
+                    <span class="metric-val">{sk} / 10</span>
                 </div>
-                <!-- Exp -->
                 <div class="metric-item">
-                    <div class="metric-top"><span class="metric-label">Experience (25%)</span><span class="metric-val">{ex} / 10</span></div>
-                    <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:{get_pct(ex)}%"></div></div>
-                    <div class="metric-justification">{escape(dims.get('experience_relevance', {}).get('justification', ''))}</div>
+                    <span class="metric-label">Relevance (25%)</span>
+                    <span class="metric-val">{ex} / 10</span>
                 </div>
-                <!-- Edu -->
                 <div class="metric-item">
-                    <div class="metric-top"><span class="metric-label">Education (15%)</span><span class="metric-val">{ed} / 10</span></div>
-                    <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:{get_pct(ed)}%"></div></div>
-                    <div class="metric-justification">{escape(dims.get('education_certs', {}).get('justification', ''))}</div>
+                    <span class="metric-label">Education (15%)</span>
+                    <span class="metric-val">{ed} / 10</span>
                 </div>
-                <!-- Proj -->
                 <div class="metric-item">
-                    <div class="metric-top"><span class="metric-label">Projects (20%)</span><span class="metric-val">{pr} / 10</span></div>
-                    <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:{get_pct(pr)}%"></div></div>
-                    <div class="metric-justification">{escape(dims.get('project_portfolio', {}).get('justification', ''))}</div>
+                    <span class="metric-label">Projects (20%)</span>
+                    <span class="metric-val">{pr} / 10</span>
                 </div>
-                <!-- Comm -->
                 <div class="metric-item">
-                    <div class="metric-top"><span class="metric-label">Communication (10%)</span><span class="metric-val">{cm} / 10</span></div>
-                    <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:{get_pct(cm)}%"></div></div>
-                    <div class="metric-justification">{escape(dims.get('communication_quality', {}).get('justification', ''))}</div>
+                    <span class="metric-label">Communication (10%)</span>
+                    <span class="metric-val">{cm} / 10</span>
                 </div>
             </div>
         </div>
